@@ -8,9 +8,9 @@ import sqlalchemy
 from databases import Database
 from fastapi import status
 
-from chapter6.sqlalchemy.app import app
-from chapter6.sqlalchemy.models import PostDB, metadata, posts
-from chapter6.sqlalchemy.database import get_database
+from chapter6.sqlalchemy_backend.app import app
+from chapter6.sqlalchemy_backend.models import PostDB, metadata, posts
+from chapter6.sqlalchemy_backend.database import get_database
 
 
 DATABASE_FILE_PATH = "chapter6_sqlalchemy.test.db"
