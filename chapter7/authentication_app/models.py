@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
-
-from chapter7.authentication.password import generate_token
 from pydantic import BaseModel, EmailStr, Field
-from tortoise.models import Model
 from tortoise import fields, timezone
+from tortoise.models import Model
+from password import generate_token
 
 
 def get_expiration_date(duration_seconds: int = 86400) -> datetime:
@@ -25,7 +24,8 @@ class User(UserBase):
     id: int
 
 
-class UserDB(User):
+class UserDB(UserBase):
+    id: int
     hashed_password: str
 
 
@@ -48,8 +48,8 @@ class UserTortoise(Model):
 
 
 class AccessTokenTortoise(Model):
-    access_token = fields.CharField(pk=True, max_length=255)
     user = fields.ForeignKeyField("models.UserTortoise", null=False)
+    access_token = fields.CharField(pk=True, max_length=255)
     expiration_date = fields.DatetimeField(null=False)
 
     class Meta:

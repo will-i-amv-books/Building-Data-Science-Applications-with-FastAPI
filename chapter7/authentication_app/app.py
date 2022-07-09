@@ -1,20 +1,15 @@
 from typing import cast
-
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from tortoise import timezone
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.exceptions import DoesNotExist, IntegrityError
-
-from chapter7.authentication.authentication import authenticate, create_access_token
-from chapter7.authentication.models import (
-    AccessTokenTortoise,
-    User,
-    UserCreate,
-    UserDB,
-    UserTortoise,
+from password import get_password_hash
+from authentication import authenticate, create_access_token
+from models import (
+    AccessTokenTortoise, UserTortoise, User, UserCreate, UserDB
 )
-from chapter7.authentication.password import get_password_hash
+
 
 app = FastAPI()
 
@@ -23,9 +18,11 @@ async def get_current_user(
     token: str = Depends(OAuth2PasswordBearer(tokenUrl="/token")),
 ) -> UserTortoise:
     try:
-        access_token: AccessTokenTortoise = await AccessTokenTortoise.get(
-            access_token=token, expiration_date__gte=timezone.now()
-        ).prefetch_related("user")
+        access_token: AccessTokenTortoise = await (
+            AccessTokenTortoise
+            .get(access_token=token, expiration_date__gte=timezone.now())
+            .prefetch_related("user")
+        )
         return cast(UserTortoise, access_token.user)
     except DoesNotExist:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
@@ -33,17 +30,17 @@ async def get_current_user(
 
 @app.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(user: UserCreate) -> User:
-    hashed_password = get_password_hash(user.password)
-
     try:
+        hashed_password = get_password_hash(user.password)
         user_tortoise = await UserTortoise.create(
-            **user.dict(), hashed_password=hashed_password
+            **user.dict(), 
+            hashed_password=hashed_password,
         )
     except IntegrityError:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists"
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Email already exists",
         )
-
     return User.from_orm(user_tortoise)
 
 
@@ -54,12 +51,9 @@ async def create_token(
     email = form_data.username
     password = form_data.password
     user = await authenticate(email, password)
-
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
     token = await create_access_token(user)
-
     return {"access_token": token.access_token, "token_type": "bearer"}
 
 
@@ -69,10 +63,10 @@ async def protected_route(user: UserDB = Depends(get_current_user)):
 
 
 TORTOISE_ORM = {
-    "connections": {"default": "sqlite://chapter7_authentication.db"},
+    "connections": {"default": "sqlite://authentication_app.db"},
     "apps": {
         "models": {
-            "models": ["chapter7.authentication.models"],
+            "models": ["models"],
             "default_connection": "default",
         },
     },
