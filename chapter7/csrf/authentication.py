@@ -1,12 +1,7 @@
 from typing import Optional
-
 from tortoise.exceptions import DoesNotExist
-
 from chapter7.csrf.models import (
-    AccessToken,
-    AccessTokenTortoise,
-    UserDB,
-    UserTortoise,
+    AccessToken, AccessTokenTortoise, UserDB, UserTortoise,
 )
 from chapter7.csrf.password import verify_password
 

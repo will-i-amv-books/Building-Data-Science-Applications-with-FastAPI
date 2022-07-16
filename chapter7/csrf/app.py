@@ -1,5 +1,4 @@
 from typing import cast
-
 from fastapi import Depends, FastAPI, Form, HTTPException, Response, status
 from fastapi.security import APIKeyCookie
 from starlette.middleware.cors import CORSMiddleware
@@ -7,22 +6,16 @@ from starlette_csrf import CSRFMiddleware
 from tortoise import timezone
 from tortoise.contrib.fastapi import register_tortoise
 from tortoise.exceptions import DoesNotExist, IntegrityError
-
 from chapter7.csrf.authentication import authenticate, create_access_token
 from chapter7.csrf.models import (
-    AccessTokenTortoise,
-    User,
-    UserCreate,
-    UserTortoise,
-    UserUpdate,
+    AccessTokenTortoise, User, UserCreate, UserTortoise, UserUpdate,
 )
 from chapter7.csrf.password import get_password_hash
 
+
 TOKEN_COOKIE_NAME = "token"
 CSRF_TOKEN_SECRET = "__CHANGE_THIS_WITH_YOUR_OWN_SECRET_VALUE__"
-
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:9000"],
@@ -30,7 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 app.add_middleware(
     CSRFMiddleware,
     secret=CSRF_TOKEN_SECRET,
@@ -43,10 +35,13 @@ async def get_current_user(
     token: str = Depends(APIKeyCookie(name=TOKEN_COOKIE_NAME)),
 ) -> UserTortoise:
     try:
-        access_token: AccessTokenTortoise = await AccessTokenTortoise.get(
-            access_token=token, expiration_date__gte=timezone.now()
-        ).prefetch_related("user")
+        access_token: AccessTokenTortoise = await (
+            AccessTokenTortoise
+            .get(access_token=token, expiration_date__gte=timezone.now())
+            .prefetch_related("user")
+        )
         return cast(UserTortoise, access_token.user)
+
     except DoesNotExist:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
@@ -62,25 +57,29 @@ async def register(user: UserCreate) -> User:
 
     try:
         user_tortoise = await UserTortoise.create(
-            **user.dict(), hashed_password=hashed_password
+            **user.dict(),
+            hashed_password=hashed_password
         )
     except IntegrityError:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already exists"
         )
 
     return User.from_orm(user_tortoise)
 
 
 @app.post("/login")
-async def login(response: Response, email: str = Form(...), password: str = Form(...)):
+async def login(
+    response: Response,
+    email: str = Form(...),
+    password: str = Form(...)
+):
     user = await authenticate(email, password)
-
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
     token = await create_access_token(user)
-
     response.set_cookie(
         TOKEN_COOKIE_NAME,
         token.access_token,

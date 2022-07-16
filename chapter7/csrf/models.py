@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-
 from chapter7.csrf.password import generate_token
 from pydantic import BaseModel, EmailStr, Field
 from tortoise.models import Model
