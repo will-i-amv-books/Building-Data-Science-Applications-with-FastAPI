@@ -1,5 +1,4 @@
 import asyncio
-
 from broadcaster import Broadcast
 from fastapi import FastAPI, WebSocket
 from pydantic import BaseModel
@@ -20,8 +19,7 @@ async def receive_message(websocket: WebSocket, username: str):
     async with broadcast.subscribe(channel=CHANNEL) as subscriber:
         async for event in subscriber:
             message_event = MessageEvent.parse_raw(event.message)
-            # Discard user's own messages
-            if message_event.username != username:
+            if message_event.username != username:  # Discard user's own messages
                 await websocket.send_json(message_event.dict())
 
 
@@ -39,7 +37,9 @@ async def websocket_endpoint(websocket: WebSocket, username: str = "Anonymous"):
             receive_message_task = asyncio.create_task(
                 receive_message(websocket, username)
             )
-            send_message_task = asyncio.create_task(send_message(websocket, username))
+            send_message_task = asyncio.create_task(
+                send_message(websocket, username)
+            )
             done, pending = await asyncio.wait(
                 {receive_message_task, send_message_task},
                 return_when=asyncio.FIRST_COMPLETED,

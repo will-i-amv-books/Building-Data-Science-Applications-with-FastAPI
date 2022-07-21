@@ -1,8 +1,8 @@
 import asyncio
 from datetime import datetime
-
-from fastapi import FastAPI, WebSocket, status
+from fastapi import FastAPI, WebSocket
 from starlette.websockets import WebSocketDisconnect
+
 
 app = FastAPI()
 
