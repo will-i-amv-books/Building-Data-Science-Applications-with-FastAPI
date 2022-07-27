@@ -3,6 +3,7 @@ from typing import Any, Dict
 import httpx
 from fastapi import FastAPI, Depends
 
+
 app = FastAPI()
 
 

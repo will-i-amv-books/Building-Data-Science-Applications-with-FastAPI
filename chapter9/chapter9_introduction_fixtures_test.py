@@ -1,5 +1,4 @@
 import pytest
-
 from chapter9.chapter9_introduction_fixtures import Address, Gender, Person
 
 

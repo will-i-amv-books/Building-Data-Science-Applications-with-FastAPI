@@ -1,8 +1,6 @@
 import asyncio
-
 import pytest
 from fastapi.testclient import TestClient
-
 from chapter9.chapter9_websocket import app
 
 
@@ -23,6 +21,5 @@ def websocket_client():
 async def test_websocket_echo(websocket_client: TestClient):
     with websocket_client.websocket_connect("/ws") as websocket:
         websocket.send_text("Hello")
-
         message = websocket.receive_text()
         assert message == "Message text was: Hello"
