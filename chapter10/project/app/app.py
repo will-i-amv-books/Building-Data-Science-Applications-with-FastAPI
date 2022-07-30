@@ -1,15 +1,9 @@
 from typing import List, Tuple
-
 from fastapi import Depends, FastAPI, Query, status
 from tortoise.contrib.fastapi import register_tortoise
-
-from app.models import (
-    PostDB,
-    PostCreate,
-    PostPartialUpdate,
-    PostTortoise,
-)
 from app.settings import Settings
+from app.models import PostDB, PostCreate, PostPartialUpdate, PostTortoise
+
 
 settings = Settings()
 app = FastAPI()
