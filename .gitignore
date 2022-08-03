@@ -115,3 +115,6 @@ ENV/
 
 # Joblib
 /*.joblib
+
+# CSV files
+*.csv
