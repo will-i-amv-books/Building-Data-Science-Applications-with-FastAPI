@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import make_pipeline
 
+
 # Load some categories of newsgroups dataset
 categories = [
     "soc.religion.christian",
@@ -11,18 +12,11 @@ categories = [
     "comp.sys.mac.hardware",
     "sci.crypt",
 ]
-newsgroups_training = fetch_20newsgroups(
-    subset="train", categories=categories, random_state=0
-)
-newsgroups_testing = fetch_20newsgroups(
-    subset="test", categories=categories, random_state=0
-)
+newsgroups_training = fetch_20newsgroups(subset="train", categories=categories, random_state=0)
+newsgroups_testing = fetch_20newsgroups(subset="test", categories=categories, random_state=0)
 
-# Make the pipeline
-model = make_pipeline(
-    TfidfVectorizer(),
-    MultinomialNB(),
-)
+# Make pipeline
+model = make_pipeline(TfidfVectorizer(), MultinomialNB())
 
 # Train the model
 model.fit(newsgroups_training.data, newsgroups_training.target)

@@ -1,6 +1,5 @@
 import os
 from typing import List, Optional, Tuple
-
 import joblib
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
@@ -28,7 +27,7 @@ class NewsgroupsModel:
         self.targets = targets
 
     async def predict(self, input: PredictionInput) -> PredictionOutput:
-        """Runs a prediction"""
+        """Runs a prediction from the model"""
         if not self.model or not self.targets:
             raise RuntimeError("Model is not loaded")
         prediction = self.model.predict([input.text])

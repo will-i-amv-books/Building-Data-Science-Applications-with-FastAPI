@@ -1,6 +1,5 @@
 import os
 from typing import List, Optional, Tuple
-
 import joblib
 from fastapi import FastAPI, Depends, status
 from joblib import memory
@@ -16,11 +15,12 @@ class PredictionOutput(BaseModel):
     category: str
 
 
+# Helper class for caching model results
 memory = joblib.Memory(location="cache.joblib")
 
 
 @memory.cache(ignore=["model"])
-def predict(model: Pipeline, text: str) -> int:
+def custom_predict(model: Pipeline, text: str) -> int:
     prediction = model.predict([text])
     return prediction[0]
 
@@ -41,7 +41,7 @@ class NewsgroupsModel:
         """Runs a prediction"""
         if not self.model or not self.targets:
             raise RuntimeError("Model is not loaded")
-        prediction = predict(self.model, input.text)
+        prediction = custom_predict(self.model, input.text)
         category = self.targets[prediction]
         return PredictionOutput(category=category)
 
